@@ -13,4 +13,8 @@ app.include_router(food.router, prefix="/foods", tags=["Foods"])
 app.include_router(history.router, prefix="/history", tags=["History"])
 app.include_router(food101.router, prefix="/food101", tags=["Food101"])
 
-#uvicorn app.main:app --reload --port 8000
+# #uvicorn app.main:app --reload --port 8000
+# from app.main import app
+
+# # Vercel sẽ tìm biến "app"
+# app = app
