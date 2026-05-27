@@ -1,2 +1,9 @@
-pip install fastapi uvicorn pymongo python-dotenv pydantic 
-requests python-multipart cloudinary
+fastapi
+uvicorn
+pymongo
+python-dotenv
+pydantic
+requests
+python-multipart
+cloudinary
+dnspython
