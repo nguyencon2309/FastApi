@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from app.routes import food, history, food101
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 app = FastAPI(title="Food Backend API")
 @app.get("/")
