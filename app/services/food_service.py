@@ -7,7 +7,7 @@ food_col = db["food"]
 
 
 def get_foods():
-    return list(food_col.find({}, {"_id": 0,"imageUrl":0,"name_Viet":0,"firebase_key":0}))
+    return list(food_col.find({}, {"_id": 0,"imageUrl":0,"nameViet":0,"firebase_key":0}))
 
 
 def get_food_by_id(id: str):
