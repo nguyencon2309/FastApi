@@ -7,7 +7,7 @@ food_col = db["food"]
 
 
 def get_foods():
-    return list(food_col.find({}, {"_id": 0}))
+    return list(food_col.find({}, {"_id": 0,"imageUrl":0,"name_Viet":0,"firebase_key":0}))
 
 
 def get_food_by_id(id: str):
@@ -15,7 +15,7 @@ def get_food_by_id(id: str):
 
 
 def update_food(id: str, data: Food):
-    update_data = data.dict()
+    update_data = data.dict(exclude_unset=True)
     update_data.pop("_id", None)
     food_col.update_one({"id": id}, {"$set":update_data})
     return {"message": "updated"}

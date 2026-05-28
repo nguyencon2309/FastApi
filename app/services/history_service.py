@@ -30,10 +30,12 @@ def get_all_history():
     return list(history_col.find({}, {"_id": 0}))
 
 def get_history(id: str):
-    return list(history_col.find(
-        {"id": id},
-        {"_id": 0}
-    ))
+ 
+    return   list(
+            history_col.find(
+                {"id": id},
+                {"_id": 0}
+            ).sort("timestamp",-1))
 def get_history_by_id(history_id: str):
     return history_col.find_one({"_id": history_id}, {"_id": 0})
 
@@ -45,3 +47,17 @@ def delete_history(history_id: str):
     
 
     return {"message": "deleted"}
+
+
+
+"""
+xử lí truy vấn mongodb
+pipeline = [
+    {"$match": {"id": id}},            # 1. Tìm kiếm (Filter)
+    {"$sort": {"timestamp": -1}},      # 2. Sắp xếp (Sort)
+    {"$project": {"_id": 0}},          # 3. Ẩn/Hiện field (Projection)
+    # {"$limit": 10}                   # 4. Giới hạn nếu cần (Ví dụ lấy 10 lịch sử gần nhất)
+]
+
+history_list = list(history_col.aggregate(pipeline))
+"""
