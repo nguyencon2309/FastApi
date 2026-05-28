@@ -14,5 +14,5 @@ def get_one(id: str):
     return food_service.get_food_by_id(id)
 
 @router.put("/{id}")
-def update(id: str, food: Food):
-    return food_service.update_food(id, food.dict())
+def update(id: str, food:Food):
+    return food_service.update_food(id, food)

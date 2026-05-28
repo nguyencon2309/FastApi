@@ -1,4 +1,5 @@
 from app.core.database import db
+from app.schemas.food_schemas import Food
 
 food_col = db["food"]
 
@@ -13,8 +14,10 @@ def get_food_by_id(id: str):
     return food_col.find_one({"id": id}, {"_id": 0})
 
 
-def update_food(id: str, data: dict):
-    food_col.update_one({"id": id}, {"$set": data})
+def update_food(id: str, data: Food):
+    update_data = data.dict()
+    update_data.pop("_id", None)
+    food_col.update_one({"id": id}, {"$set":update_data})
     return {"message": "updated"}
 
 
