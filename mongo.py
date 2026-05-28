@@ -14,7 +14,7 @@ db = client["smart_tray"]  # Tên Database của bạn
 
 # 2. Đọc file JSON xuất từ Firebase của bạn
 # Giả sử file của bạn tên là 'firebase_data.json'
-file = r'C:\Users\Admin\Downloads\smart_tray__firebase.json'
+file = r'C:\Users\Admin\Downloads\data_firebase.json'
 with open(file, 'r', encoding='utf-8') as f:
     raw_data = json.load(f)
 
@@ -52,16 +52,16 @@ if "food" in raw_data:
 # 4. Xử lý nhóm dữ liệu thứ 2 (bạn gọi là food_101)
 # Thay 'food_101' bằng chính xác Key nhóm 2 trong file JSON của bạn
 # (Ví dụ trong chuỗi của bạn có thể tên là 'food_101', 'food101'...)
-key_nhom_2 = "food_101" 
+# key_nhom_2 = "food_101" 
 
-if key_nhom_2 in raw_data:
-    print(f"Đang xử lý nhóm {key_nhom_2}...")
-    food101_list = transform_firebase_data(raw_data[key_nhom_2])
+# if key_nhom_2 in raw_data:
+#     print(f"Đang xử lý nhóm {key_nhom_2}...")
+#     food101_list = transform_firebase_data(raw_data[key_nhom_2])
     
-    if food101_list:
-        collection_food101 = db["food101"]  # Tạo collection tên là 'food101'
-        collection_food101.drop()           # Xóa dữ liệu cũ nếu có
-        collection_food101.insert_many(food101_list)
-        print(f" Successfully! Đã nạp {len(food101_list)} món vào collection 'food101'.")
+#     if food101_list:
+#         collection_food101 = db["food101"]  # Tạo collection tên là 'food101'
+#         collection_food101.drop()           # Xóa dữ liệu cũ nếu có
+#         collection_food101.insert_many(food101_list)
+#         print(f" Successfully! Đã nạp {len(food101_list)} món vào collection 'food101'.")
 
 print("\n Toàn bộ dữ liệu đã được làm phẳng và đẩy lên MongoDB Atlas thành công!")

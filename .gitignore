@@ -9,3 +9,6 @@ env/
 
 # Bỏ qua file cấu hình bảo mật chứa password database và token Cloudinary
 .env
+mongo.py
+
+mongo_add_collection.py

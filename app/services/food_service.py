@@ -1,7 +1,7 @@
 from app.core.database import db
 from app.schemas.food_schemas import Food
 
-food_col = db["food"]
+food_col = db["foods"]
 
 
 
