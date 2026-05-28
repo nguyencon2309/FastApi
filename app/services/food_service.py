@@ -17,6 +17,10 @@ def get_food_by_id(id: str):
 def update_food(id: str, data: Food):
     update_data = data.dict(exclude_unset=True)
     update_data.pop("_id", None)
+    update_data.pop("image",None)
+    update_data.pop("classname",None)
+    update_data.pop("nameViet",None)
+    update_data.pop("vietnamese_name",None)
     food_col.update_one({"id": id}, {"$set":update_data})
     return {"message": "updated"}
 

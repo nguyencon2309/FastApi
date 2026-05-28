@@ -37,13 +37,13 @@ def get_history(id: str):
                 {"_id": 0}
             ).sort("timestamp",-1))
 def get_history_by_id(history_id: str):
-    return history_col.find_one({"_id": history_id}, {"_id": 0})
+    return history_col.find_one({"id": history_id}, {"_id": 0})
 
 def delete_history(history_id: str):
     history = get_history_by_id(history_id)
     if history and history.get("image_public_id"):
         delete(history["image_public_id"])
-    history_col.delete_one({"_id": history_id})
+    history_col.delete_one({"id": history_id})
     
 
     return {"message": "deleted"}
