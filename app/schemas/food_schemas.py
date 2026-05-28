@@ -3,10 +3,9 @@ from pydantic import BaseModel
 from bson import ObjectId
 
 class Food(BaseModel):
-    name: str
     image: str | None = None
     _id: ObjectId | None = None
-    classname: str
+    className: str
     description: str
     nameViet: str
     price: int
