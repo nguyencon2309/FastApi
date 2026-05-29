@@ -27,7 +27,7 @@ async def add_history(file: UploadFile = File(...),
     }
     
 def get_all_history():
-    return list(history_col.find({}, {"_id": 0}))
+    return list(history_col.find({}, {"_id": 0}).sort("timestamp",-1))
 
 def get_history(id: str):
  
@@ -35,7 +35,7 @@ def get_history(id: str):
             history_col.find(
                 {"id": id},
                 {"_id": 0}
-            ).sort("timestamp",-1))
+            ))
 def get_history_by_id(history_id: str):
     return history_col.find_one({"id": history_id}, {"_id": 0})
 
