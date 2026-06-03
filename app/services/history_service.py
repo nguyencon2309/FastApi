@@ -15,6 +15,8 @@ async def add_history(file: UploadFile = File(...),
     history_data["imagePredict"] = upload_result["url"] 
     history_data["image_public_id"] = upload_result["public_id"]    
     history_data["user_id"] = user_id
+    history_data["quanlityFood"] = len(history_data.get("listInvoice", []))
+    history_data["sumPrice"]
 
     if "_id" not in history_data:
         history_data["_id"] = ObjectId()
@@ -28,17 +30,17 @@ async def add_history(file: UploadFile = File(...),
     }
     
 def get_all_history(user_id: str):
-    return list(history_col.find({"user_id": user_id}, {"_id": 0}).sort("timestamp",-1))
+    return list(history_col.find({"user_id": user_id}, {"_id": 0,"listInvoice": 0,"user_id": 0,"image_public_id": 0}).sort("timestamp",-1))
 
-def get_history(id: str,user_id: str):
+# def get_history(id: str,user_id: str):
  
-    return   list(
-            history_col.find(
-                {"id": id, "user_id": user_id},
-                {"_id": 0}
-            ))
+#     return   list(
+#             history_col.find(
+#                 {"id": id, "user_id": user_id},
+#                 {"_id": 0,"listInvoice": 0,"user_id": 0,"image_public_id": 0}
+#             ))
 def get_history_by_id(history_id: str, user_id: str):
-    return history_col.find_one({"id": history_id, "user_id": user_id}, {"_id": 0})
+    return history_col.find_one({"id": history_id, "user_id": user_id}, {"_id": 0,"user_id": 0,"image_public_id": 0})
 
 def delete_history(history_id: str, user_id: str):
     history = get_history_by_id(history_id, user_id)

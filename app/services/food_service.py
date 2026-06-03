@@ -7,11 +7,11 @@ food_col = db["foods"]
 
 
 def get_foods():
-    return list(food_col.find({}, {"_id": 0,"imageUrl":0,"vietnamese_name":0,"firebase_key":0}))
+    return list(food_col.find({}, {"_id": 0,"imageUrl":0,"vietnamese_name":0,"firebase_key":0,"className":0,"description":0}))
 
 
 def get_food_by_id(id: str):
-    return food_col.find_one({"id": id}, {"_id": 0})
+    return food_col.find_one({"id": id}, {"_id": 0,"imageUrl":0,"vietnamese_name":0,"firebase_key":0})
 
 
 def update_food(id: str, data: Food):
