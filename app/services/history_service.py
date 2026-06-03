@@ -16,7 +16,7 @@ async def add_history(file: UploadFile = File(...),
     history_data["image_public_id"] = upload_result["public_id"]    
     history_data["user_id"] = user_id
     history_data["quanlityFood"] = len(history_data.get("listInvoice", []))
-    history_data["sumPrice"]
+    history_data["sumPrice"] = sum(invoice.get("price", 0) for invoice in history_data.get("listInvoice", []))
 
     if "_id" not in history_data:
         history_data["_id"] = ObjectId()

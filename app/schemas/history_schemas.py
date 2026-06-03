@@ -9,9 +9,9 @@ class History(BaseModel):
     _id: ObjectId | None = None
     imagePredict:str | None = None
     image_public_id:str | None = None
-    id:str
+    id:str | None = None
     timestamp:int
     listInvoice:List[Invoice]=[]
-    user_id:str
-    sumPrice:int
-    quanlityFood:int
+    user_id:str | None = None
+    sumPrice:int | None = None
+    quanlityFood:int | None = None
