@@ -12,3 +12,4 @@ class History(BaseModel):
     id:str
     timestamp:int
     listInvoice:List[Invoice]=[]
+    user_id:str

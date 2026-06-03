@@ -9,11 +9,12 @@ import json
 history_col = db["history"]
 
 async def add_history(file: UploadFile = File(...),
-    data: str = Form(...)):
+    data: str = Form(...), user_id: str = None):
     history_data = json.loads(data)
     upload_result = await upload(file)
     history_data["imagePredict"] = upload_result["url"] 
     history_data["image_public_id"] = upload_result["public_id"]    
+    history_data["user_id"] = user_id
 
     if "_id" not in history_data:
         history_data["_id"] = ObjectId()
@@ -26,28 +27,34 @@ async def add_history(file: UploadFile = File(...),
         "imageUrl": upload_result["url"]
     }
     
-def get_all_history():
-    return list(history_col.find({}, {"_id": 0}).sort("timestamp",-1))
+def get_all_history(user_id: str):
+    return list(history_col.find({"user_id": user_id}, {"_id": 0}).sort("timestamp",-1))
 
-def get_history(id: str):
+def get_history(id: str,user_id: str):
  
     return   list(
             history_col.find(
-                {"id": id},
+                {"id": id, "user_id": user_id},
                 {"_id": 0}
             ))
-def get_history_by_id(history_id: str):
-    return history_col.find_one({"id": history_id}, {"_id": 0})
+def get_history_by_id(history_id: str, user_id: str):
+    return history_col.find_one({"id": history_id, "user_id": user_id}, {"_id": 0})
 
-def delete_history(history_id: str):
-    history = get_history_by_id(history_id)
+def delete_history(history_id: str, user_id: str):
+    history = get_history_by_id(history_id, user_id)
     if history and history.get("image_public_id"):
         delete(history["image_public_id"])
-    history_col.delete_one({"id": history_id})
+    history_col.delete_one({"id": history_id, "user_id": user_id})
     
 
     return {"message": "deleted"}
-
+def delete_all_history():
+    all_history = list(history_col.find({}, {"_id": 0}))
+    for history in all_history:
+        if history.get("image_public_id"):
+            delete(history["image_public_id"])
+    history_col.delete_many({})
+    return {"message": "deleted all"}
 
 
 """
