@@ -10,7 +10,7 @@ router = APIRouter()
 async def add(file:UploadFile = File(...), data: str=Form(...),current_user: dict = Depends(check_token_middleware)):
     user_id = str(current_user.get("_id"))
     return await history_service.add_history(file, data, user_id)
-@router.get("/id")
+@router.get("/{id}")
 def get(id: str,current_user: dict = Depends(check_token_middleware)):
     user_id = str(current_user.get("_id"))
     return history_service.get_history_by_id(id, user_id)
