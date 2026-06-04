@@ -14,7 +14,7 @@ async def add(file:UploadFile = File(...), data: str=Form(...),current_user: dic
 def get(id: str,current_user: dict = Depends(check_token_middleware)):
     user_id = str(current_user.get("_id"))
     return history_service.get_history_by_id(id, user_id)
-@router.get("/",dependencies=[Depends(check_token_middleware)])
+@router.get("/all",dependencies=[Depends(check_token_middleware)])
 def get(current_user: dict = Depends(check_token_middleware)):
     user_id = str(current_user.get("_id"))
     return history_service.get_all_history(user_id)
