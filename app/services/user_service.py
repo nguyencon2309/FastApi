@@ -39,4 +39,4 @@ def login_user(form_data: UserLoginSchema):
         return {"error": "Email hoặc mật khẩu không đúng!"}
         
     access_token = create_access_token(data={"sub": str(user["_id"])})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "username":user["username"], "role": user["role"]}
