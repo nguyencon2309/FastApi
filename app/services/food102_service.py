@@ -3,7 +3,7 @@ from app.schemas.food_schemas import Food
 from fastapi import FastAPI, HTTPException, status
 from bson import ObjectId
 from app.utils.helper import pydantic_mongo_helper  
-food_col = db["foods"]
+food_col = db["food102"]
 
 
 

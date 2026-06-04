@@ -1,67 +1,107 @@
-import json
-from pymongo import MongoClient
 import os
+import pandas as pd
+from pymongo import MongoClient
+from bson import ObjectId
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# 1. Điền chuỗi kết nối MongoDB Atlas của bạn (đã thay pass và db name)
-MONGODB_URL = os.getenv("MONGO_URL")  # Lấy từ biến môi trường trong .env của bạn
+#
+# 1. Cấu hình Kết nối MongoDB
+MONGO_URI = os.getenv("MONGO_URL")
+DB_NAME = "smart_tray"
+COLLECTION_NAME = "food102"
 
-# Kết nối tới MongoDB Atlas
-client = MongoClient(MONGODB_URL)
-db = client["smart_tray"]  # Tên Database của bạn
+# 2. Đường dẫn tới file Excel của bạn
+# Giả sử file Excel tên là "danh_sach_mon_an.xlsx" nằm cùng thư mục với file code này
+EXCEL_FILE_PATH = r'C:\Users\Admin\Documents\Book2_food_db.xlsx'
 
-# 2. Đọc file JSON xuất từ Firebase của bạn
-# Giả sử file của bạn tên là 'firebase_data.json'
-file = r'C:\Users\Admin\Downloads\data_firebase.json'
-with open(file, 'r', encoding='utf-8') as f:
-    raw_data = json.load(f)
+def import_excel_to_mongodb():
+    # Kiểm tra xem file Excel có tồn tại không
+    if not os.path.exists(EXCEL_FILE_PATH):
+        print(f"❌ Không tìm thấy file Excel tại đường dẫn: {EXCEL_FILE_PATH}")
+        return
 
-# --- HÀM CHUYỂN ĐỔI CẤU TRÚC FIREBASE -> MONGODB ---
-def transform_firebase_data(firebase_group):
-    """
-    Biến đổi cấu trúc {"-OtKq7r...": {data}} thành danh sách [{data}, {data}]
-    """
-    mongo_documents = []
-    if not firebase_group:
-        return mongo_documents
+    print("📖 Đang đọc dữ liệu từ file Excel...")
+    # Đọc file Excel bằng cấu trúc DataFrame của Pandas
+    df = pd.read_excel(EXCEL_FILE_PATH,sheet_name='Sheet1')
+
+    # In thử các cột hiện có trong file để kiểm tra
+    print(f"📋 Các cột tìm thấy trong file: {list(df.columns)}")
+
+    # Kết nối tới MongoDB
+    client = MongoClient(MONGO_URI)
+    db = client[DB_NAME]
+    collection = db[COLLECTION_NAME]
+
+    documents_to_insert = []
+
+    print("⏳ Đang chuẩn hóa dữ liệu sang định dạng MongoDB...")
+    # Lặp qua từng dòng (row) trong file Excel
+    for index, row in df.iterrows():
+        try:
+            # Lấy dữ liệu và xử lý giá trị NaN (nếu có ô trống trong Excel)
+            className = str(row['className']).strip() if pd.notna(row['className']) else ""
+            nameViet = str(row['name']).strip() if pd.notna(row['name']) else ""
+            
+            category = str(row['category']).strip() if pd.notna(row['category']) else ""
+            description = str(row['description']).strip() if pd.notna(row['description']) else ""
+            price = int(str(row['price']).strip()) 
+            calories = int(str(row['calories']).strip())
+            image = str(row['image']).strip() if pd.notna(row['image']) else ""
+            # Xử lý cắt chuỗi ngăn cách bởi dấu gạch đứng '|' thành list
+            ingredients_raw = str(row['ingredients']) if pd.notna(row['ingredients']) else ""
+            ingredients_list = [item.strip() for item in ingredients_raw.split('|') if item.strip()]
+
+            recipe_raw = str(row['recipe']) if pd.notna(row['recipe']) else ""
+            recipe_list = [item.strip() for item in recipe_raw.split('|') if item.strip()]
+
+            tips_raw = str(row['tips']).strip() if pd.notna(row['tips']) else ""
+            tips_list = [item.strip() for item in tips_raw.split('|') if item.strip()]  
+
+            # Bỏ qua nếu dòng đó trống tên món ăn
+            if not nameViet or nameViet == "nan":
+                continue
+
+            # Tạo cấu trúc Document chuẩn khớp với Schema FastAPI
+            # MongoDB sẽ tự hiểu khóa chính là '_id' kiểu ObjectId
+            dish_document = {
+                "_id": ObjectId(), # Tự sinh một ObjectId mới cho mỗi món ăn
+                "className": className,
+                "nameViet": nameViet,
+                "image":image,
+                "category": category,
+                "description": description,
+                "price": price,
+                "calories": calories,
+                "ingredients": ingredients_list,
+                "recipe": recipe_list,
+                "tips": tips_list
+            }
+
+            documents_to_insert.append(dish_document)
+
+        except KeyError as e:
+            print(f"❌ Lỗi: File Excel thiếu cột bắt buộc: {e}")
+            print("Vui lòng đảm bảo file có đủ các cột: 'Tên món ăn', 'ingredients', 'recipe', 'tips'")
+            return
+        except Exception as e:
+            print(f"⚠️ Lỗi xử lý ở dòng {index + 2}: {e}")
+
+    # Tiến hành insert vào Database
+    if documents_to_insert:
+        print(f"🚀 Đang chèn {len(documents_to_insert)} món ăn vào MongoDB...")
+        # Xóa dữ liệu cũ nếu muốn (Tùy chọn: bỏ comment dòng dưới nếu muốn làm sạch data cũ trước khi nạp)
+        # collection.delete_many({}) 
         
-    for firebase_key, food_data in firebase_group.items():
-        # Copy lại dữ liệu để tránh ghi đè dữ liệu gốc
-        doc = food_data.copy()
-        
-        # Firebase lưu ID làm Key, nếu trong data chưa có trường 'id' hoặc 'firebase_key' thì ta gán vào
-        doc['firebase_key'] = firebase_key 
-        
-        mongo_documents.append(doc)
-    return mongo_documents
+        # Chèn toàn bộ mảng data vào Mongo
+        result = collection.insert_many(documents_to_insert)
+        print(f"🎉 Thành công! Đã import thành công {len(result.inserted_ids)} món ăn vào bộ sưu tập '{COLLECTION_NAME}'.")
+    else:
+        print("🤷 Không có dữ liệu hợp lệ nào được tìm thấy để import.")
 
-# 3. Xử lý nhóm "food"
-# Thay 'food' bằng chính xác Key nhóm 1 trong file JSON của bạn
-if "food" in raw_data:
-    print("Đang xử lý nhóm food...")
-    food_list = transform_firebase_data(raw_data["food"])
-    
-    if food_list:
-        collection_food = db["food"]  # Tạo collection tên là 'food'
-        collection_food.drop()        # Xóa dữ liệu cũ nếu có để tránh trùng lặp khi chạy lại
-        collection_food.insert_many(food_list)
-        print(f" Successfully! Đã nạp {len(food_list)} món vào collection 'food'.")
+    # Đóng kết nối
+    client.close()
 
-# 4. Xử lý nhóm dữ liệu thứ 2 (bạn gọi là food_101)
-# Thay 'food_101' bằng chính xác Key nhóm 2 trong file JSON của bạn
-# (Ví dụ trong chuỗi của bạn có thể tên là 'food_101', 'food101'...)
-# key_nhom_2 = "food_101" 
-
-# if key_nhom_2 in raw_data:
-#     print(f"Đang xử lý nhóm {key_nhom_2}...")
-#     food101_list = transform_firebase_data(raw_data[key_nhom_2])
-    
-#     if food101_list:
-#         collection_food101 = db["food101"]  # Tạo collection tên là 'food101'
-#         collection_food101.drop()           # Xóa dữ liệu cũ nếu có
-#         collection_food101.insert_many(food101_list)
-#         print(f" Successfully! Đã nạp {len(food101_list)} món vào collection 'food101'.")
-
-print("\n Toàn bộ dữ liệu đã được làm phẳng và đẩy lên MongoDB Atlas thành công!")
+if __name__ == "__main__":
+    import_excel_to_mongodb()

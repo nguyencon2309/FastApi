@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import food, history, food101, user
+from app.routes import food, food102, history, user
 import os
 import sys
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,7 +21,7 @@ def read_root():
     return {"message": "Backend SmartTray"}
 app.include_router(food.router, prefix="/foods", tags=["Foods"])
 app.include_router(history.router, prefix="/history", tags=["History"])
-app.include_router(food101.router, prefix="/food101", tags=["Food101"])
+app.include_router(food102.router, prefix="/food102", tags=["Food102"])
 app.include_router(user.router, prefix="/auth", tags=["Users"])
 
 # #uvicorn app.main:app --reload --port 8000
