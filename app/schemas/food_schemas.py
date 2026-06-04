@@ -10,6 +10,7 @@ class Food(BaseModel):
     nameViet: str
     price: int = 0
     id: str
+    category:str =""
     calories: int = 0
     ingredients: list[str] = Field(default_factory=list)
     recipe: list[str] = Field(default_factory=list)
